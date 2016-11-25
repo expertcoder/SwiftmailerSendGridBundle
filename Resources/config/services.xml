@@ -7,8 +7,7 @@
     <services>
         <service
                 id="expertcoder_swift_mailer.send_grid.transport"
-                class="ExpertCoder\Swiftmailer\SendGridBundle\Services\SendGridTransport"
-                parent="expertcoder_twig_renderer.abstract_renderer">
+                class="ExpertCoder\Swiftmailer\SendGridBundle\Services\SendGridTransport" >
             <argument>%expertcoder_swiftmailer_sendgrid.api_key%</argument>
         </service>
     </services>

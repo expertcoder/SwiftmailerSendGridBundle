@@ -33,47 +33,52 @@ class SendGridTransport implements \Swift_Transport
 
 	public function send(Swift_Mime_Message $message, &$failedRecipients = null)
 	{
+		//TODO - return value should be the number of recipients who were accepted for delivery
+		//TODO - populate $failedRecipients ?
+
 		//Get the first from email (SendGrid PHP library only seems to support one)
 		$fromArray = $message->getFrom();
-		reset($fromArray);
-		$fromStr = key($fromArray);
-		$from = new SendGrid\Email(null, $fromStr);
-
-		$subject = $message->getSubject();
-		$content = new SendGrid\Content($message->getContentType(), $message->getBody() );
+		$fromName = reset($fromArray);
+		$fromEmail = key($fromArray);
 
 		$mail = new SendGrid\Mail(); //Intentionally not using constructor arguments as they are tedious to work with
 
-		$mail->setFrom($from);
-		$mail->setSubject($subject);
-		$mail->addContent($content);
+		$mail->setFrom(new SendGrid\Email($fromName, $fromEmail));
+		$mail->setSubject($message->getSubject() );
+		$mail->addContent(new SendGrid\Content($message->getContentType(), $message->getBody() ));
 
 		$personalization = new SendGrid\Personalization();
-		foreach ($message->getTo() as $email => $name ) {
-			$personalization->addTo($email);
+
+
+		if ($toArr = $message->getTo()) {
+			foreach ($toArr as $email => $name ) {
+				$personalization->addTo(new SendGrid\Email($name, $email) );
+			}
 		}
 
-		foreach ($message->getCC() as $email => $name ) {
-			$personalization->addCC($email);
+		if ($ccArr = $message->getCc()) {
+			foreach ($ccArr as $email => $name ) {
+				$personalization->addCc(new SendGrid\Email($name, $email) );
+			}
 		}
 
-		foreach ($message->getBcc() as $email => $name ) {
-			$personalization->addBcc($email);
+		if ($bccArr = $message->getBcc()) {
+			foreach ($bccArr as $email => $name ) {
+				$personalization->addBcc(new SendGrid\Email($name, $email) );
+			}
 		}
+
+
+		$mail->addPersonalization($personalization);
 
 		$sendGrid = new SendGrid($this->sendGridApiKey);
 
 		$response = $sendGrid->client->mail()->send()->post($mail);
-//		echo $response->statusCode();
-//		echo $response->headers();
-//		echo $response->body();
-
-		//TODO - need to return correct value
 	}
 
 	public function registerPlugin(Swift_Events_EventListener $plugin)
 	{
-		throw new \Exception('This method has not been implemented yet');
+
 	}
 
 
