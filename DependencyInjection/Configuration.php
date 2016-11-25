@@ -18,9 +18,9 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('expertcoder_swiftmailer_sendgrid');
+        $rootNode = $treeBuilder->root('expert_coder_swiftmailer_send_grid');
 
-		$rootNode
+		$rootNode->isRequired()->cannotBeEmpty()
 			->children()
 				->scalarNode('api_key')
 					->isRequired()

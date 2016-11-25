@@ -26,5 +26,12 @@ class ExpertCoderSwiftmailerSendGridExtension extends Extension
         $loader->load('services.xml');
 
 		$container->setParameter('expertcoder_swiftmailer_sendgrid.api_key', $config['api_key']);
+
+		/*
+		 Swiftmailer Bundle seems to prepend "swiftmailer.mailer.transport." to "swiftmailer.transport" specified
+		 in config.yml to determine the name of the service to use, hence the need for this alias
+		 */
+		$container->setAlias('swiftmailer.mailer.transport.sendgrid', 'expertcoder_swift_mailer.send_grid.transport');
+
 	}
 }
