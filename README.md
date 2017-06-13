@@ -1,9 +1,9 @@
 # SwiftmailerSendGridBundle
 
-Symfony 3 (version 2 not tested) bundle for SendGrid. Utilizes the SendGrid PHP Library https://github.com/sendgrid/sendgrid-php 
+Symfony 2/3 bundle for SendGrid. Utilizes the SendGrid PHP Library https://github.com/sendgrid/sendgrid-php 
 to make it compatiable with SwiftMailer.
 
-##Installation Example
+## Installation Example
 
 parameters.yml.dist
 ```
