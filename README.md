@@ -32,7 +32,7 @@ composer.json
 ```
 "require": {
     .....
-    "expertcoder/symapi-security-bundle": "@dev"
+    "expertcoder/swiftmailer-send-grid-bundle": "@dev"
 }
 
 ```
