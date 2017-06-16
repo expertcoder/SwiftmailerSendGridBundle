@@ -2,84 +2,157 @@
 
 namespace ExpertCoder\Swiftmailer\SendGridBundle\Services;
 
-use Swift_Events_EventListener;
-use Swift_Mime_Message;
+use finfo;
 use SendGrid;
+use Swift_Events_EventListener;
+use Swift_Mime_Attachment;
+use Swift_Mime_Message;
+use Swift_Transport;
 
-class SendGridTransport implements \Swift_Transport
-{
-	private $sendGridApiKey;
+class SendGridTransport implements Swift_Transport {
 
-	public function __construct($sendGridApiKey)
-	{
-		$this->sendGridApiKey = $sendGridApiKey;
-	}
+    /**
+     * @see https://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html
+     * 2xx responses indicate a successful request. The request that you made is valid and successful.
+     */
+    const STATUS_SUCCESSFUL_MAX_RANGE = 299;
 
-	public function isStarted()
-	{
-		//Not used
-		return true;
-	}
+    /**
+     * @see https://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html
+     * ACCEPTED : Your message is both valid, and queued to be delivered.
+     */
+    const STATUS_ACCEPTED = 202;
 
-	public function start()
-	{
-		//Not used
-	}
+    /**
+     * @see https://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html
+     * OK : Your message is valid, but it is not queued to be delivered. Sandbox mode only.
+     */
+    const STATUS_OK_SUCCESSFUL_MIN_RANGE = 200;
 
-	public function stop()
-	{
-		//Not used
-	}
+    /**
+     * Sendgrid api key.
+     * 
+     * @var string
+     */
+    private $sendGridApiKey;
 
-	public function send(Swift_Mime_Message $message, &$failedRecipients = null)
-	{
-		//TODO - return value should be the number of recipients who were accepted for delivery
-		//TODO - populate $failedRecipients ?
+    public function __construct($sendGridApiKey) {
+        $this->sendGridApiKey = $sendGridApiKey;
+    }
 
-		//Get the first from email (SendGrid PHP library only seems to support one)
-		$fromArray = $message->getFrom();
-		$fromName = reset($fromArray);
-		$fromEmail = key($fromArray);
+    public function isStarted() {
+        //Not used
+        return true;
+    }
 
-		$mail = new SendGrid\Mail(); //Intentionally not using constructor arguments as they are tedious to work with
+    public function start() {
+        //Not used
+    }
 
-		$mail->setFrom(new SendGrid\Email($fromName, $fromEmail));
-		$mail->setSubject($message->getSubject() );
-		$mail->addContent(new SendGrid\Content($message->getContentType(), $message->getBody() ));
+    public function stop() {
+        //Not used
+    }
 
-		$personalization = new SendGrid\Personalization();
+    /**
+     * WARNING : $failedRecipients and return value are faked
+     * 
+     * @param Swift_Mime_Message $message
+     * @param array $failedRecipients
+     * @return int 
+     */
+    public function send(Swift_Mime_Message $message, &$failedRecipients = null) {
 
-
-		if ($toArr = $message->getTo()) {
-			foreach ($toArr as $email => $name ) {
-				$personalization->addTo(new SendGrid\Email($name, $email) );
-			}
-		}
-
-		if ($ccArr = $message->getCc()) {
-			foreach ($ccArr as $email => $name ) {
-				$personalization->addCc(new SendGrid\Email($name, $email) );
-			}
-		}
-
-		if ($bccArr = $message->getBcc()) {
-			foreach ($bccArr as $email => $name ) {
-				$personalization->addBcc(new SendGrid\Email($name, $email) );
-			}
-		}
+        // prepare fake data.
+        $sent                    = 0;
+        $prepareFailedRecipients = [];
 
 
-		$mail->addPersonalization($personalization);
+        //Get the first from email (SendGrid PHP library only seems to support one)
+        $fromArray = $message->getFrom();
+        $fromName  = reset($fromArray);
+        $fromEmail = key($fromArray);
 
-		$sendGrid = new SendGrid($this->sendGridApiKey);
+        $mail = new SendGrid\Mail(); //Intentionally not using constructor arguments as they are tedious to work with
 
-		$response = $sendGrid->client->mail()->send()->post($mail);
-	}
+        $mail->setFrom(new SendGrid\Email($fromName, $fromEmail));
+        $mail->setSubject($message->getSubject());
 
-	public function registerPlugin(Swift_Events_EventListener $plugin)
-	{
+        // extract content type from body to prevent multi-part content-type error
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $contentType = $finfo->buffer($message->getBody());
+        $mail->addContent(new SendGrid\Content($contentType,
+                                               $message->getBody()));
 
-	}
+        $personalization = new SendGrid\Personalization();
 
+        // process TO
+        if ($toArr = $message->getTo()) {
+            foreach ($toArr as $email => $name) {
+                $personalization->addTo(new SendGrid\Email($name, $email));
+                $sent++;
+                $prepareFailedRecipients[] = $email;
+            }
+        }
+
+        // process CC
+        if ($ccArr = $message->getCc()) {
+            foreach ($ccArr as $email => $name) {
+                $personalization->addCc(new SendGrid\Email($name, $email));
+                $sent++;
+                $prepareFailedRecipients[] = $email;
+            }
+        }
+        
+        // process BCC
+        if ($bccArr = $message->getBcc()) {
+            foreach ($bccArr as $email => $name) {
+                $personalization->addBcc(new SendGrid\Email($name, $email));
+                $sent++;
+                $prepareFailedRecipients[] = $email;
+            }
+        }
+
+        // process attachment (not inline)
+        if ($attachments = $message->getChildren()) {
+            foreach ($attachments as $attachment) {
+                if ($attachment instanceof Swift_Mime_Attachment) {
+                    $sAttachment = new SendGrid\Attachment();
+                    $sAttachment->setContent(base64_encode($attachment->getBody()));
+                    $sAttachment->setType($attachment->getContentType());
+                    $sAttachment->setFilename($attachment->getFilename());
+                    $sAttachment->setDisposition($attachment->getDisposition());
+                    $sAttachment->setContentId($attachment->getId());
+                    $mail->addAttachment($sAttachment);
+                }
+            }
+        }
+
+        $mail->addPersonalization($personalization);
+
+        $sendGrid = new SendGrid($this->sendGridApiKey);
+
+        $response = $sendGrid->client->mail()->send()->post($mail);
+
+        // only 2xx status are ok
+        if (
+                $response->_status_code < self::STATUS_OK_SUCCESSFUL_MIN_RANGE || 
+                self::STATUS_SUCCESSFUL_MAX_RANGE < $response->_status_code ) {
+            
+            // to force big boom error uncomment this line
+            //throw new \Swift_TransportException("Error when sending message. Return status :".$response->_status_code);
+            
+            // copy failed recipients
+            foreach ($prepareFailedRecipients as $recipient) {
+                $failedRecipients[] = $recipient;
+            }
+            $sent = 0;
+        }
+                
+        return $sent;
+    }
+
+    public function registerPlugin(Swift_Events_EventListener $plugin) {
+        // unused
+    }
 
 }
