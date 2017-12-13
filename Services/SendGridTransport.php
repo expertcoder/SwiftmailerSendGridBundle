@@ -31,7 +31,7 @@ class SendGridTransport implements Swift_Transport {
 
     /**
      * Sendgrid api key.
-     * 
+     *
      * @var string
      */
     private $sendGridApiKey;
@@ -55,10 +55,10 @@ class SendGridTransport implements Swift_Transport {
 
     /**
      * WARNING : $failedRecipients and return value are faked
-     * 
+     *
      * @param Swift_Mime_Message $message
      * @param array $failedRecipients
-     * @return int 
+     * @return int
      */
     public function send(Swift_Mime_Message $message, &$failedRecipients = null) {
 
@@ -102,7 +102,7 @@ class SendGridTransport implements Swift_Transport {
                 $prepareFailedRecipients[] = $email;
             }
         }
-        
+
         // process BCC
         if ($bccArr = $message->getBcc()) {
             foreach ($bccArr as $email => $name) {
@@ -135,19 +135,19 @@ class SendGridTransport implements Swift_Transport {
 
         // only 2xx status are ok
         if (
-                $response->_status_code < self::STATUS_OK_SUCCESSFUL_MIN_RANGE || 
-                self::STATUS_SUCCESSFUL_MAX_RANGE < $response->_status_code ) {
-            
+                $response->statusCode() < self::STATUS_OK_SUCCESSFUL_MIN_RANGE ||
+                self::STATUS_SUCCESSFUL_MAX_RANGE < $response->statusCode()) {
+
             // to force big boom error uncomment this line
-            //throw new \Swift_TransportException("Error when sending message. Return status :".$response->_status_code);
-            
+            //throw new \Swift_TransportException("Error when sending message. Return status :".$response->statusCode());
+
             // copy failed recipients
             foreach ($prepareFailedRecipients as $recipient) {
                 $failedRecipients[] = $recipient;
             }
             $sent = 0;
         }
-                
+
         return $sent;
     }
 
