@@ -20,14 +20,19 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('expert_coder_swiftmailer_send_grid');
 
-		$rootNode->isRequired()->cannotBeEmpty()
-			->children()
-				->scalarNode('api_key')
-					->isRequired()
-					->cannotBeEmpty()
-				->end()
-			->end()
-		;
+        $rootNode->isRequired()->cannotBeEmpty()
+            ->fixXmlConfig('category')
+            ->children()
+                ->scalarNode('api_key')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                ->end()
+                ->arrayNode('categories')
+                    ->scalarPrototype()->end()
+                ->end()
+            ->end()
+        ;
+
         return $treeBuilder;
     }
 }

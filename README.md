@@ -14,10 +14,11 @@ parameters:
 config.yml
 ```
 swiftmailer:
-    transport: sendgrid
+    transport: expertcoder_swift_mailer.send_grid.transport
     
 expert_coder_swiftmailer_send_grid:
-    api_key: %sendgrid_api_key%    
+    api_key: %sendgrid_api_key%
+    categories: [my_app] # optional, will be added to all mails sent
 ```
 
 AppKernel.php
