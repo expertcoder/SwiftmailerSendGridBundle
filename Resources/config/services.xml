@@ -9,6 +9,8 @@
                 id="expertcoder_swift_mailer.send_grid.transport"
                 class="ExpertCoder\Swiftmailer\SendGridBundle\Services\SendGridTransport" >
             <argument>%expertcoder_swiftmailer_sendgrid.api_key%</argument>
+            <argument>%expertcoder_swiftmailer_sendgrid.categories%</argument>
+            <argument type="service" id="logger" />
         </service>
     </services>
 </container>

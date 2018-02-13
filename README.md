@@ -14,10 +14,11 @@ parameters:
 config.yml
 ```
 swiftmailer:
-    transport: sendgrid
+    transport: expertcoder_swift_mailer.send_grid.transport
     
 expert_coder_swiftmailer_send_grid:
-    api_key: %sendgrid_api_key%    
+    api_key: %sendgrid_api_key%
+    categories: [my_app] # optional, will be added to all mails sent
 ```
 
 AppKernel.php
@@ -36,3 +37,10 @@ composer.json
 }
 
 ```
+
+## Important !
+
+Following RFC 1341, section 7.2, if either `text/html` or `text/plain` are to be sent in your email: `text/plain` needs to be first, followed by `text/html`, followed by any other content.
+
+
+For more informations, please see [SwiftMailer](https://swiftmailer.symfony.com/docs/messages.html#quick-reference) and [RFC 1341](https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html)
