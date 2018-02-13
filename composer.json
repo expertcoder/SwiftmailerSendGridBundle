@@ -2,7 +2,7 @@
   "name": "expertcoder/swiftmailer-send-grid-bundle",
   "type": "symfony-bundle",
   "description": "Swiftmailer Transport and Symfony bundle for Sendgrid",
-  "homepage": "https://github.com/expertcoder/TwigRendererBundle",
+  "homepage": "https://github.com/expertcoder/SwiftmailerSendGridBundle",
   "authors": [
     {
       "name": "Samual Anthony",
