@@ -41,7 +41,21 @@ expert_coder_swiftmailer_send_grid:
     api_key: %sendgrid_api_key%
     categories: [my_category] # optional, will be added to all mails sent
 ```
+#### Symfony 3
 
+Since Symfony 3.2, you must name the custom transport service swiftmailer.mailer.transport.< name >
+
+*services.yml*
+```yml
+services:
+    swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid.transport:
+      alias: expertcoder_swift_mailer.send_grid.transport
+```
+*config.yml*
+```yml
+imports:
+    - { resource: services.yml }
+```
 ## Important !
 
 Following RFC 1341, section 7.2, if either `text/html` or `text/plain` are to be sent in your email: `text/plain` needs to be first, followed by `text/html`, followed by any other content.
