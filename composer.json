@@ -3,6 +3,7 @@
   "type": "symfony-bundle",
   "description": "Swiftmailer Transport and Symfony bundle for Sendgrid",
   "homepage": "https://github.com/expertcoder/SwiftmailerSendGridBundle",
+  "license": "MIT",
   "authors": [
     {
       "name": "Samual Anthony",
@@ -15,7 +16,8 @@
   ],
   "require": {
     "php": ">=5.4",
-    "symfony/symfony": ">=2.7",
+    "symfony/symfony": "~2.7|~3.3|~4.0",
+    "swiftmailer/swiftmailer": ">=4.2.0,<6.0.0",
     "sendgrid/sendgrid": "^5.0"
   },
   "autoload": {

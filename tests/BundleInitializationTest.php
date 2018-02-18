@@ -24,6 +24,12 @@ class BundleInitializationTest extends BaseBundleTestCase
 
     public function testInitBundle()
     {
+        // Create a new Kernel
+        $kernel = $this->createKernel();
+
+        // Add some configuration
+        $kernel->addConfigFile(__DIR__.'/config_test.yml');
+
         // Boot the kernel.
         $this->bootKernel();
 
@@ -38,22 +44,5 @@ class BundleInitializationTest extends BaseBundleTestCase
         // Test if parameters exists
         $this->assertTrue($container->hasParameter('expertcoder_swiftmailer_sendgrid.api_key'));
         $this->assertTrue($container->hasParameter('expertcoder_swiftmailer_sendgrid.categories'));
-    }
-
-    public function testBundleWithDifferentConfiguration()
-    {
-        // Create a new Kernel
-        $kernel = $this->createKernel();
-
-        // Add some configuration
-        $kernel->addConfigFile(__DIR__.'/config.yml');
-
-        // Add some other bundles we depend on
-        $kernel->addBundle(OtherBundle::class);
-
-        // Boot the kernel as normal ...
-        $this->bootKernel();
-
-        // ...
     }
 }
