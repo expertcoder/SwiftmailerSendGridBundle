@@ -1,5 +1,9 @@
 # SwiftmailerSendGridBundle
 
+[![Latest Version](https://img.shields.io/github/release/expertcoder/SwiftmailerSendGridBundle.svg?style=flat-square)](https://github.com/expertcoder/SwiftmailerSendGridBundle/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
+[![Build Status](https://img.shields.io/travis/expertcoder/SwiftmailerSendGridBundle.svg?style=flat-square)](https://travis-ci.org/expertcoder/SwiftmailerSendGridBundle)
+
 Symfony 2/3 bundle for SendGrid. Utilizes the SendGrid PHP Library https://github.com/sendgrid/sendgrid-php 
 to make it compatiable with SwiftMailer.
 
