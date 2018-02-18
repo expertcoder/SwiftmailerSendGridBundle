@@ -1,6 +1,6 @@
 # SwiftmailerSendGridBundle
 
-[![Latest Version](https://img.shields.io/github/release/expertcoder/SwiftmailerSendGridBundle.svg?style=flat-square)](https://github.com/janephp/janephp/releases)
+[![Latest Version](https://img.shields.io/github/release/expertcoder/SwiftmailerSendGridBundle.svg?style=flat-square)](https://github.com/expertcoder/SwiftmailerSendGridBundle/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 [![Build Status](https://img.shields.io/travis/expertcoder/SwiftmailerSendGridBundle.svg?style=flat-square)](https://travis-ci.org/expertcoder/SwiftmailerSendGridBundle)
 
