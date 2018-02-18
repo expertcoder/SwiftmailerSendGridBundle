@@ -51,11 +51,10 @@ class SendGridTransport implements Swift_Transport
      */
     private $logger;
 
-    public function __construct($sendGridApiKey, $sendGridCategories, LoggerInterface $logger)
+    public function __construct($sendGridApiKey, $sendGridCategories)
     {
         $this->sendGridApiKey = $sendGridApiKey;
         $this->sendGridCategories = $sendGridCategories;
-        $this->logger = $logger;
     }
 
     public function isStarted()
@@ -72,6 +71,11 @@ class SendGridTransport implements Swift_Transport
     public function stop()
     {
         //Not used
+    }
+
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -166,7 +170,9 @@ class SendGridTransport implements Swift_Transport
             self::STATUS_SUCCESSFUL_MAX_RANGE < $response->statusCode()) {
             // to force big boom error uncomment this line
             //throw new \Swift_TransportException("Error when sending message. Return status :".$response->statusCode());
-            $this->logger->error($response->statusCode().': '.$response->body());
+            if (null !== $this->logger) {
+                $this->logger->error($response->statusCode().': '.$response->body());
+            }
 
             // copy failed recipients
             foreach ($prepareFailedRecipients as $recipient) {
