@@ -11,7 +11,7 @@
   ],
   "require": {
     "php": ">=5.4",
-    "symfony/symfony": ">=2.5",
+    "symfony/symfony": ">=2.7",
     "sendgrid/sendgrid": "^5.0"
   },
   "autoload": {
