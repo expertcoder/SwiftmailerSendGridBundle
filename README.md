@@ -1,3 +1,5 @@
+![Freelance Banner](https://s3.eu-central-1.amazonaws.com/static.expertcoder.io/github-banner/banner.png)
+
 # SwiftmailerSendGridBundle
 
 [![Latest Version](https://img.shields.io/github/release/expertcoder/SwiftmailerSendGridBundle.svg?style=flat-square)](https://github.com/expertcoder/SwiftmailerSendGridBundle/releases)
