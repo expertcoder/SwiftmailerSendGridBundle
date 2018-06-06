@@ -6,7 +6,7 @@ use finfo;
 use SendGrid;
 use Swift_Events_EventListener;
 use Swift_Mime_Attachment;
-use Swift_Mime_Message;
+use Swift_Mime_SimpleMessage;
 use Swift_Transport;
 use Psr\Log\LoggerInterface;
 
@@ -81,12 +81,12 @@ class SendGridTransport implements Swift_Transport
     /**
      * WARNING : $failedRecipients and return value are faked.
      *
-     * @param Swift_Mime_Message $message
-     * @param array              $failedRecipients
+     * @param Swift_Mime_SimpleMessage $message
+     * @param array                    $failedRecipients
      *
      * @return int
      */
-    public function send(Swift_Mime_Message $message, &$failedRecipients = null)
+    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
         // prepare fake data.
         $sent = 0;
@@ -182,6 +182,11 @@ class SendGridTransport implements Swift_Transport
         }
 
         return $sent;
+    }
+
+    public function ping()
+    {
+        return true;
     }
 
     public function registerPlugin(Swift_Events_EventListener $plugin)

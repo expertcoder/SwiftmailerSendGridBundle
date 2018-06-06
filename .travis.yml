@@ -38,7 +38,7 @@ matrix:
 before_install:
     - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
     - if ! [ -z "$STABILITY" ]; then composer config minimum-stability ${STABILITY}; fi;
-    - composer require --no-update symfony/phpunit-bridge:* ${DEPENDENCIES}
+    - composer require --no-update symfony/phpunit-bridge:~4.0 ${DEPENDENCIES}
 
 install:
     # To be removed when this issue will be resolved: https://github.com/composer/composer/issues/5355

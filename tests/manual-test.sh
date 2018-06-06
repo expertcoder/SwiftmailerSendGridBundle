@@ -8,7 +8,7 @@ if [ $# -eq 0 ] # check if argument exists
 	exit 0;
 fi
 
-composer require --dev --no-update symfony/phpunit-bridge:* dunglas/symfony-lock:^$1
+composer require --dev --no-update symfony/phpunit-bridge:~4.0 dunglas/symfony-lock:^$1
 composer update --prefer-dist --no-interaction --prefer-stable --quiet
 composer update --prefer-stable --prefer-lowest --prefer-dist --no-interaction
 ./vendor/bin/simple-phpunit install
