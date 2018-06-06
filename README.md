@@ -26,6 +26,14 @@ to make it compatiable with SwiftMailer.
 
 ```
 
+*config/packages/swiftmailer.yaml*
+```yml
+swiftmailer:
+    transport: expertcoder_swift_mailer.send_grid
+```
+
+Don't forget to set your Sendgrid API Key in your *.env* file, and that you can set your mail's categories from `config/packages/expert_coder_swiftmailer_send_grid.yaml`
+
 Applications that don't use Symfony Flex
 ----------------------------------------
 
