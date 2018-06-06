@@ -6,7 +6,7 @@
 
     <services>
         <service
-                id="expertcoder_swift_mailer.send_grid.transport"
+                id="swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid"
                 class="ExpertCoder\Swiftmailer\SendGridBundle\Services\SendGridTransport" >
             <argument>%expertcoder_swiftmailer_sendgrid.api_key%</argument>
             <argument>%expertcoder_swiftmailer_sendgrid.categories%</argument>

@@ -19,7 +19,7 @@ class BundleInitializationTest extends BaseBundleTestCase
         parent::setUp();
 
         // Make services public that have an idea that matches a regex
-        $this->addCompilerPass(new PublicServicePass('|expertcoder_swift_mailer.*|'));
+        $this->addCompilerPass(new PublicServicePass('|swiftmailer.mailer.transport.expertcoder_swift_mailer.*|'));
     }
 
     public function testInitBundle()
@@ -37,8 +37,8 @@ class BundleInitializationTest extends BaseBundleTestCase
         $container = $this->getContainer();
 
         // Test if services exists
-        $this->assertTrue($container->has('expertcoder_swift_mailer.send_grid.transport'));
-        $service = $container->get('expertcoder_swift_mailer.send_grid.transport');
+        $this->assertTrue($container->has('swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid'));
+        $service = $container->get('swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid');
         $this->assertInstanceOf(SendGridTransport::class, $service);
 
         // Test if parameters exists

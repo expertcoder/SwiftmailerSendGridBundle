@@ -6,23 +6,28 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 [![Build Status](https://img.shields.io/travis/expertcoder/SwiftmailerSendGridBundle.svg?style=flat-square)](https://travis-ci.org/expertcoder/SwiftmailerSendGridBundle)
 
-Symfony 2/3 bundle for SendGrid. Utilizes the SendGrid PHP Library https://github.com/sendgrid/sendgrid-php 
+Symfony bundle for SendGrid. Utilizes the SendGrid PHP Library https://github.com/sendgrid/sendgrid-php 
 to make it compatiable with SwiftMailer.
 
-## Installation Example
+**Older version (1.x) can be found here:** https://github.com/expertcoder/SwiftmailerSendGridBundle/tree/1.x
+
+## Installation
 
 `composer require expertcoder/swiftmailer-send-grid-bundle`
 
-**or**
+**or manually**
 
 *composer.json*
 ```json
 "require": {
     ...
-    "expertcoder/swiftmailer-send-grid-bundle": "~1.0"
+    "expertcoder/swiftmailer-send-grid-bundle": "~2.0"
 }
 
 ```
+
+Applications that don't use Symfony Flex
+----------------------------------------
 
 *AppKernel.php*
 ```php
@@ -41,27 +46,13 @@ parameters:
 *config.yml*
 ```yml
 swiftmailer:
-    transport: expertcoder_swift_mailer.send_grid.transport
+    transport: expertcoder_swift_mailer.send_grid
     
 expert_coder_swiftmailer_send_grid:
     api_key: %sendgrid_api_key%
-    categories: [my_category] # optional, will be added to all mails sent
+    categories: [my_category] # optional, will be added to all mails sent (can be seen on sendgrid dashboard)
 ```
-#### Symfony 3
 
-Since Symfony 3.2, you must name the custom transport service swiftmailer.mailer.transport.< name >
-
-*services.yml*
-```yml
-services:
-    swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid.transport:
-      alias: expertcoder_swift_mailer.send_grid.transport
-```
-*config.yml*
-```yml
-imports:
-    - { resource: services.yml }
-```
 ## Important !
 
 Following RFC 1341, section 7.2, if either `text/html` or `text/plain` are to be sent in your email: `text/plain` needs to be first, followed by `text/html`, followed by any other content.
