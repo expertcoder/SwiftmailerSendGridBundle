@@ -97,27 +97,27 @@ class SendGridTransport implements Swift_Transport
         $fromName = reset($fromArray);
         $fromEmail = key($fromArray);
 
-        $mail = new SendGrid\Mail(); //Intentionally not using constructor arguments as they are tedious to work with
+        $mail = new SendGrid\Mail\Mail(); //Intentionally not using constructor arguments as they are tedious to work with
 
         // categories can be useful if you use them like tags to, for example, distinguish different applications.
         foreach ($this->sendGridCategories as $category) {
             $mail->addCategory($category);
         }
 
-        $mail->setFrom(new SendGrid\Email($fromName, $fromEmail));
+        $mail->setFrom(new SendGrid\Mail\From($fromEmail, $fromName));
         $mail->setSubject($message->getSubject());
 
         // extract content type from body to prevent multi-part content-type error
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $contentType = $finfo->buffer($message->getBody());
-        $mail->addContent(new SendGrid\Content($contentType, $message->getBody()));
+        $mail->addContent(new SendGrid\Mail\Content($contentType, $message->getBody()));
 
-        $personalization = new SendGrid\Personalization();
+        $personalization = new SendGrid\Mail\Personalization();
 
         // process TO
         if ($toArr = $message->getTo()) {
             foreach ($toArr as $email => $name) {
-                $personalization->addTo(new SendGrid\Email($name, $email));
+                $personalization->addTo(new SendGrid\Mail\To($email, $name));
                 ++$sent;
                 $prepareFailedRecipients[] = $email;
             }
@@ -126,7 +126,7 @@ class SendGridTransport implements Swift_Transport
         // process CC
         if ($ccArr = $message->getCc()) {
             foreach ($ccArr as $email => $name) {
-                $personalization->addCc(new SendGrid\Email($name, $email));
+                $personalization->addCc(new SendGrid\Mail\Cc($email, $name));
                 ++$sent;
                 $prepareFailedRecipients[] = $email;
             }
@@ -135,7 +135,7 @@ class SendGridTransport implements Swift_Transport
         // process BCC
         if ($bccArr = $message->getBcc()) {
             foreach ($bccArr as $email => $name) {
-                $personalization->addBcc(new SendGrid\Email($name, $email));
+                $personalization->addBcc(new SendGrid\Mail\Bcc($email, $name));
                 ++$sent;
                 $prepareFailedRecipients[] = $email;
             }
@@ -145,7 +145,7 @@ class SendGridTransport implements Swift_Transport
         if ($attachments = $message->getChildren()) {
             foreach ($attachments as $attachment) {
                 if ($attachment instanceof Swift_Mime_Attachment) {
-                    $sAttachment = new SendGrid\Attachment();
+                    $sAttachment = new SendGrid\Mail\Attachment();
                     $sAttachment->setContent(base64_encode($attachment->getBody()));
                     $sAttachment->setType($attachment->getContentType());
                     $sAttachment->setFilename($attachment->getFilename());
@@ -154,7 +154,7 @@ class SendGridTransport implements Swift_Transport
                     $mail->addAttachment($sAttachment);
                 } elseif (in_array($attachment->getContentType(), ['text/plain', 'text/html'])) {
                     // add part if any is defined, to avoid error please set body as text and part as html
-                    $mail->addContent(new SendGrid\Content($attachment->getContentType(), $attachment->getBody()));
+                    $mail->addContent(new SendGrid\Mail\Content($attachment->getContentType(), $attachment->getBody()));
                 }
             }
         }
