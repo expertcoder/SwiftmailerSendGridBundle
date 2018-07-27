@@ -20,10 +20,6 @@ class BundleInitializationTest extends BaseBundleTestCase
 
         // Make services public that have an idea that matches a regex
         $this->addCompilerPass(new PublicServicePass('|swiftmailer.mailer.transport.expertcoder_swift_mailer.*|'));
-    }
-
-    public function testInitBundle()
-    {
         // Create a new Kernel
         $kernel = $this->createKernel();
 
@@ -32,7 +28,10 @@ class BundleInitializationTest extends BaseBundleTestCase
 
         // Boot the kernel.
         $this->bootKernel();
+    }
 
+    public function testInitBundle()
+    {
         // Get the container
         $container = $this->getContainer();
 
@@ -44,5 +43,23 @@ class BundleInitializationTest extends BaseBundleTestCase
         // Test if parameters exists
         $this->assertTrue($container->hasParameter('expertcoder_swiftmailer_sendgrid.api_key'));
         $this->assertTrue($container->hasParameter('expertcoder_swiftmailer_sendgrid.categories'));
+    }
+
+    // This help us ensure the API is well used
+    public function testSimpleMail()
+    {
+        $message = (new \Swift_Message('[Test] SwiftSendGrid'))
+            ->setFrom('noreply@swiftsendgrid.bundle')
+            ->setTo('nobody@send.grid')
+            ->setBody('Test body.', 'text/plain')
+        ;
+        $transport = $this->getContainer()->get('swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid');
+        $transport->setHttpClientOptions([
+            'curl' => [CURLOPT_TIMEOUT => 1],
+        ]);
+        $mailer = new \Swift_Mailer($transport);
+        $result = $mailer->send($message);
+
+        $this->assertEquals(0, $mailer->send($message)); // This should gives us 0 for no email sent
     }
 }
