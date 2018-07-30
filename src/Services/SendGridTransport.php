@@ -51,10 +51,18 @@ class SendGridTransport implements Swift_Transport
      */
     private $logger;
 
+    /**
+     * Http client options.
+     *
+     * @var array
+     */
+    private $httpClientOptions;
+
     public function __construct($sendGridApiKey, $sendGridCategories)
     {
         $this->sendGridApiKey = $sendGridApiKey;
         $this->sendGridCategories = $sendGridCategories;
+        $this->httpClientOptions = [];
     }
 
     public function isStarted()
@@ -112,7 +120,7 @@ class SendGridTransport implements Swift_Transport
         $contentType = $finfo->buffer($message->getBody());
         $mail->addContent(new SendGrid\Mail\Content($contentType, $message->getBody()));
 
-        $personalization = new SendGrid\Mail\Personalization();
+        $personalization = $mail->getPersonalizations()[0];
 
         // process TO
         if ($toArr = $message->getTo()) {
@@ -159,9 +167,7 @@ class SendGridTransport implements Swift_Transport
             }
         }
 
-        $mail->addPersonalization($personalization);
-
-        $sendGrid = new SendGrid($this->sendGridApiKey);
+        $sendGrid = new SendGrid($this->sendGridApiKey, $this->httpClientOptions);
 
         $response = $sendGrid->client->mail()->send()->post($mail);
 
@@ -192,5 +198,17 @@ class SendGridTransport implements Swift_Transport
     public function registerPlugin(Swift_Events_EventListener $plugin)
     {
         // unused
+    }
+
+    /**
+     * @param array $httpClientOptions
+     *
+     * @return self
+     */
+    public function setHttpClientOptions(array $httpClientOptions)
+    {
+        $this->httpClientOptions = $httpClientOptions;
+
+        return $this;
     }
 }
