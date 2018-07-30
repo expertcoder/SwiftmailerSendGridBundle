@@ -120,7 +120,13 @@ class SendGridTransport implements Swift_Transport
         $contentType = $finfo->buffer($message->getBody());
         $mail->addContent(new SendGrid\Mail\Content($contentType, $message->getBody()));
 
-        $personalization = new SendGrid\Mail\Personalization();
+        // personalization
+        if (!empty($mail->getPersonalizations())) {
+            $personalization = $mail->getPersonalizations()[0];
+        } else {
+            $personalization = new SendGrid\Mail\Personalization();
+            $mail->addPersonalization($personalization);
+        }
 
         // process TO
         if ($toArr = $message->getTo()) {
@@ -166,8 +172,6 @@ class SendGridTransport implements Swift_Transport
                 }
             }
         }
-
-        $mail->addPersonalization($personalization);
 
         $sendGrid = new SendGrid($this->sendGridApiKey, $this->httpClientOptions);
 
