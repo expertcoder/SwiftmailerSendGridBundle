@@ -60,6 +60,24 @@ expert_coder_swiftmailer_send_grid:
     api_key: %sendgrid_api_key%
     categories: [my_category] # optional, will be added to all mails sent (can be seen on sendgrid dashboard)
 ```
+Symfony 3
+---------
+
+Since Symfony 3.2, you must name the custom transport service swiftmailer.mailer.transport.< name > so you can use one of the solutions below:
+
+*services.yml*
+```yml
+services:
+    swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid.transport:
+      alias: expertcoder_swift_mailer.send_grid.transport
+```
+**OR**
+
+*config.yml*
+```yml
+swiftmailer:
+    transport: 'swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid'
+```
 
 ## Important !
 
