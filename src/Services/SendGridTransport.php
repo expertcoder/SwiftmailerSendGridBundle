@@ -68,6 +68,15 @@ class SendGridTransport implements Swift_Transport
      */
     private $eventDispatcher;
 
+    /**
+     * Some header keys are reserved. You may not include any of the following reserved keys
+     * (From SendGrid docs)
+     */
+    const RESERVED_KEYWORDS = [
+        'x-sg-id', 'x-sg-eid', 'received', 'dkim-signature', 'Content-Type', 'Content-Transfer-Encoding',
+        'To', 'From', 'Subject', 'Reply-To', 'CC', 'BCC'
+    ];
+
     public function __construct(Swift_Events_EventDispatcher $eventDispatcher, $sendGridApiKey, $sendGridCategories)
     {
         $this->eventDispatcher = $eventDispatcher;
@@ -216,6 +225,16 @@ class SendGridTransport implements Swift_Transport
                 } elseif (in_array($attachment->getContentType(), ['text/plain', 'text/html'])) {
                     // add part if any is defined, to avoid error please set body as text and part as html
                     $mail->addContent(new SendGrid\Mail\Content($attachment->getContentType(), $attachment->getBody()));
+                }
+            }
+        }
+
+        // add headers
+        if ($headers = $message->getHeaders()->getAll()) {
+            foreach ($headers as $header) {
+                $headerName = $header->getFieldName();
+                if (!in_array($headerName, self::RESERVED_KEYWORDS)) {
+                    $mail->addHeader($headerName, $header->getFieldBody());
                 }
             }
         }
