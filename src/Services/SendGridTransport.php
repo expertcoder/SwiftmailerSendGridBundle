@@ -8,6 +8,8 @@ use Swift_Events_EventListener;
 use Swift_Mime_Attachment;
 use Swift_Mime_SimpleMessage;
 use Swift_Transport;
+use Swift_Events_EventDispatcher;
+use Swift_Events_SendEvent;
 use Psr\Log\LoggerInterface;
 
 class SendGridTransport implements Swift_Transport
@@ -58,8 +60,17 @@ class SendGridTransport implements Swift_Transport
      */
     private $httpClientOptions;
 
-    public function __construct($sendGridApiKey, $sendGridCategories)
+    /** Connection status */
+    protected $started = false;
+
+    /**
+     * @var Swift_Events_EventDispatcher
+     */
+    private $eventDispatcher;
+
+    public function __construct(Swift_Events_EventDispatcher $eventDispatcher, $sendGridApiKey, $sendGridCategories)
     {
+        $this->eventDispatcher = $eventDispatcher;
         $this->sendGridApiKey = $sendGridApiKey;
         $this->sendGridCategories = $sendGridCategories;
         $this->httpClientOptions = [];
@@ -67,18 +78,47 @@ class SendGridTransport implements Swift_Transport
 
     public function isStarted()
     {
-        //Not used
-        return true;
+        return $this->started;
     }
 
     public function start()
     {
-        //Not used
+        if (!$this->started) {
+            if ($evt = $this->eventDispatcher->createTransportChangeEvent($this)) {
+                $this->eventDispatcher->dispatchEvent($evt, 'beforeTransportStarted');
+                if ($evt->bubbleCancelled()) {
+                    return;
+                }
+            }
+
+            //noop (transport does not need initialization)
+
+            if ($evt) {
+                $this->eventDispatcher->dispatchEvent($evt, 'transportStarted');
+            }
+
+            $this->started = true;
+        }
     }
 
     public function stop()
     {
-        //Not used
+        if ($this->started) {
+            if ($evt = $this->eventDispatcher->createTransportChangeEvent($this)) {
+                $this->eventDispatcher->dispatchEvent($evt, 'beforeTransportStopped');
+                if ($evt->bubbleCancelled()) {
+                    return;
+                }
+            }
+
+            //noop (transport does not need to termintated)
+
+            if ($evt) {
+                $this->eventDispatcher->dispatchEvent($evt, 'transportStopped');
+            }
+        }
+
+        $this->started = false;
     }
 
     public function setLogger(LoggerInterface $logger)
@@ -96,6 +136,13 @@ class SendGridTransport implements Swift_Transport
      */
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
+        if ($evt = $this->eventDispatcher->createSendEvent($this, $message)) {
+            $this->eventDispatcher->dispatchEvent($evt, 'beforeSendPerformed');
+            if ($evt->bubbleCancelled()) {
+                return 0;
+            }
+        }
+
         // prepare fake data.
         $sent = 0;
         $prepareFailedRecipients = [];
@@ -193,6 +240,18 @@ class SendGridTransport implements Swift_Transport
             $sent = 0;
         }
 
+        if ($evt) {
+            if ($sent == count($toArr) + count($ccArr) + count($bccArr)) {
+                $evt->setResult(Swift_Events_SendEvent::RESULT_SUCCESS);
+            } elseif ($sent > 0) {
+                $evt->setResult(Swift_Events_SendEvent::RESULT_TENTATIVE);
+            } else {
+                $evt->setResult(Swift_Events_SendEvent::RESULT_FAILED);
+            }
+            $evt->setFailedRecipients($failedRecipients);
+            $this->eventDispatcher->dispatchEvent($evt, 'sendPerformed');
+        }
+
         return $sent;
     }
 
@@ -201,9 +260,12 @@ class SendGridTransport implements Swift_Transport
         return true;
     }
 
+    /**
+     * @param Swift_Events_EventListener $plugin
+     */
     public function registerPlugin(Swift_Events_EventListener $plugin)
     {
-        // unused
+        $this->eventDispatcher->bindEventListener($plugin);
     }
 
     /**
