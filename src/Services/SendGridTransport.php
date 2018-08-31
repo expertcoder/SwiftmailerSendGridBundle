@@ -73,8 +73,8 @@ class SendGridTransport implements Swift_Transport
      * (From SendGrid docs)
      */
     const RESERVED_KEYWORDS = [
-        'x-sg-id', 'x-sg-eid', 'received', 'dkim-signature', 'Content-Type', 'Content-Transfer-Encoding',
-        'To', 'From', 'Subject', 'Reply-To', 'CC', 'BCC'
+        'X-SG-ID', 'X-SG-EID', 'RECEIVED', 'DKIM-SIGNATURE', 'CONTENT-TYPE', 'CONTENT-TRANSFER-ENCODING',
+        'TO', 'FROM', 'SUBJECT', 'REPLY-TO', 'CC', 'BCC'
     ];
 
     public function __construct(Swift_Events_EventDispatcher $eventDispatcher, $sendGridApiKey, $sendGridCategories)
@@ -233,7 +233,7 @@ class SendGridTransport implements Swift_Transport
         if ($headers = $message->getHeaders()->getAll()) {
             foreach ($headers as $header) {
                 $headerName = $header->getFieldName();
-                if (!in_array($headerName, self::RESERVED_KEYWORDS)) {
+                if (!in_array(strtoupper($headerName), self::RESERVED_KEYWORDS)) {
                     $mail->addHeader($headerName, $header->getFieldBody());
                 }
             }
