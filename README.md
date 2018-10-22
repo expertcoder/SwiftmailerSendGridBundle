@@ -79,6 +79,14 @@ swiftmailer:
     transport: 'swiftmailer.mailer.transport.expertcoder_swift_mailer.send_grid'
 ```
 
+## Tests
+
+This bundle provide a little helper to launch tests locally and here is a quick explanation:
+
+* The `config_test.yml` file contains configuration associated with the bundle.
+* The `manual-test.sh` helps you test against a specific symfony version and is the main helper to execute tests. You just have to do `sh tests/manual-test.sh versionNumber` where versionNumber is the main Symfony version you want to test (ex: 4)
+* The last file contains PhpUnit tests with help of `nyholm/symfony-bundle-test`. Note that we set a timeout of 1sec when sending mail to sendgrid as we do not test the actual sendgrid API with a real key.
+
 ## Important !
 
 Following RFC 1341, section 7.2, if either `text/html` or `text/plain` are to be sent in your email: `text/plain` needs to be first, followed by `text/html`, followed by any other content.
