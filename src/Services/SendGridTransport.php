@@ -3,14 +3,14 @@
 namespace ExpertCoder\Swiftmailer\SendGridBundle\Services;
 
 use finfo;
+use Psr\Log\LoggerInterface;
 use SendGrid;
+use Swift_Events_EventDispatcher;
 use Swift_Events_EventListener;
+use Swift_Events_SendEvent;
 use Swift_Mime_Attachment;
 use Swift_Mime_SimpleMessage;
 use Swift_Transport;
-use Swift_Events_EventDispatcher;
-use Swift_Events_SendEvent;
-use Psr\Log\LoggerInterface;
 
 class SendGridTransport implements Swift_Transport
 {
@@ -70,11 +70,22 @@ class SendGridTransport implements Swift_Transport
 
     /**
      * Some header keys are reserved. You may not include any of the following reserved keys
-     * (From SendGrid docs)
+     *
+     * @see https://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#-Headers-Errors
      */
     const RESERVED_KEYWORDS = [
-        'X-SG-ID', 'X-SG-EID', 'RECEIVED', 'DKIM-SIGNATURE', 'CONTENT-TYPE', 'CONTENT-TRANSFER-ENCODING',
-        'TO', 'FROM', 'SUBJECT', 'REPLY-TO', 'CC', 'BCC'
+        'X-SG-ID',
+        'X-SG-EID',
+        'RECEIVED',
+        'DKIM-SIGNATURE',
+        'CONTENT-TYPE',
+        'CONTENT-TRANSFER-ENCODING',
+        'TO',
+        'FROM',
+        'SUBJECT',
+        'REPLY-TO',
+        'CC',
+        'BCC',
     ];
 
     public function __construct(Swift_Events_EventDispatcher $eventDispatcher, $sendGridApiKey, $sendGridCategories)
@@ -260,7 +271,7 @@ class SendGridTransport implements Swift_Transport
         }
 
         if ($evt) {
-            if ($sent == count($toArr) + count($ccArr) + count($bccArr)) {
+            if ($sent == count($toArr ?? []) + count($ccArr ?? []) + count($bccArr ?? [])) {
                 $evt->setResult(Swift_Events_SendEvent::RESULT_SUCCESS);
             } elseif ($sent > 0) {
                 $evt->setResult(Swift_Events_SendEvent::RESULT_TENTATIVE);
