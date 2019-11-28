@@ -19,8 +19,8 @@
         "sendgrid/sendgrid": "^7.0",
         "sendgrid/php-http-client": "~3.9.4",
         "symfony/swiftmailer-bundle": "~3.2",
-        "symfony/framework-bundle": "~2.7|~3.3|~4.0",
-        "symfony/yaml": "~2.7|~3.3|~4.0"
+        "symfony/framework-bundle": "~2.7|~3.3|~4.0|~5.0",
+        "symfony/yaml": "~2.7|~3.3|~4.0|~5.0"
     },
     "require-dev": {
         "nyholm/symfony-bundle-test": "^1.3"
